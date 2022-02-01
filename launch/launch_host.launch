@@ -11,7 +11,7 @@
 
     <node pkg="rosbag" type="record" name="rosbag_record_traj"
        args="record -o /home/zixuzhang/Documents/GitRepo/G29_ROS/record/traj 
-       /vicon/rc_car_cg/rc_car_cg /rc_control_node/g29_control"
+       /vicon/rc_car_cg/rc_car_cg /rc_control_node/g29_control /zed2/zed_node/pose"
        if="$(arg record_traj)" />
 </launch>
 
