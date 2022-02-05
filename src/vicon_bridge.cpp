@@ -248,7 +248,7 @@ public:
     // Publishers
     if(publish_markers_)
     {
-      marker_pub_ = nh.advertise<vicon_bridge::Markers>(tracked_frame_suffix_ + "/markers", 10);
+      marker_pub_ = nh.advertise<vicon_bridge::Markers>(tracked_frame_suffix_ + "/markers", 1);
     }
     startGrabbing();
   }
@@ -338,7 +338,7 @@ private:
     if(publish_tf_)
     {
       spub.pub = nh.advertise<geometry_msgs::TransformStamped>(tracked_frame_suffix_ + "/" + subject_name + "/"
-                                                                                                            + segment_name, 10);
+                                                                                                            + segment_name, 1);
     }
     // try to get zero pose from parameter server
     string param_suffix(subject_name + "/" + segment_name + "/zero_pose/");
