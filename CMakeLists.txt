@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
     dynamic_reconfigure
     geometry_msgs
     roscpp
+    rospy
     tf
     diagnostic_updater
 )
@@ -80,3 +81,7 @@ install(TARGETS vicon_sdk vicon_bridge calibrate tf_distort testclient
 
 install(DIRECTORY launch cfg DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
+catkin_install_python(PROGRAMS
+  scripts/verify_slam.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
