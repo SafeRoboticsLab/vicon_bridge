@@ -24,7 +24,7 @@ def SE3_log(T):
 
 class PublishOdometry:
     def __init__(self):
-        self.vicon_topic = rospy.get_param("~vicon_topic", "/vicon/zed/zed")
+        self.vicon_topic = rospy.get_param("~vicon_topic", "/vicon/NX14/NX14")
         self.pub_topic = rospy.get_param("~pub_topic", "/vicon/pose")
         self.freq = rospy.get_param("~pub_freq", 50)
         
