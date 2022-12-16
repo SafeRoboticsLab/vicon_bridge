@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 
 <launch>
-    <arg name="record_traj" default="true" />
+    <arg name="record_traj" default="false" />
 
     <include file="$(find vicon_bridge)/launch/vicon.launch" />
     <include file="$(find joy)/launch/g29.launch">
-        <arg name="dev_id" value="1" />
+        <arg name="dev_id" value="0" />
         <arg name="ff_dev_id" value="25"/>
     </include>
 
