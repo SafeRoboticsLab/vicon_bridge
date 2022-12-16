@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
     message_generation
     dynamic_reconfigure
     geometry_msgs
+    nav_msgs
     roscpp
     rospy
     tf
@@ -83,5 +84,6 @@ install(DIRECTORY launch cfg DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 catkin_install_python(PROGRAMS
   scripts/verify_slam.py
+  scripts/pub_odometry.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
