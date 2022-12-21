@@ -35,11 +35,14 @@ class PublishOdometry:
         self.t_last_pub = None
         self.pose_prev = None
         
+        self.T_0 = np.eye(4)
+        
     def callback(self, vicon_pose):
         
         # convert to vicon pose to odometry
         t_cur = vicon_pose.header.stamp.to_sec()
-        Pose_cur = get_T(vicon_pose.transform.translation, vicon_pose.transform.rotation)
+        Pose_cur = np.dot(self.T_0, get_T(vicon_pose.transform.translation, vicon_pose.transform.rotation))
+        # print(Pose_cur)
         
         if self.t_last_pub is not None:
             dt = t_cur - self.t_prev
@@ -57,9 +60,20 @@ class PublishOdometry:
             if dt_pub >= 1.0 / self.freq:
                 odom = Odometry()
                 odom.header.stamp = vicon_pose.header.stamp
+                odom.header.frame_id = "vicon/world"
+                # odom.child_frame_id = "vicon_odom"
+                # odom.pose.pose.position = vicon_pose.transform.translation
+                # odom.pose.pose.orientation = vicon_pose.transform.rotation
+                odom.pose.pose.position.x = Pose_cur[0,-1]
+                odom.pose.pose.position.y = Pose_cur[1,-1]
+                odom.pose.pose.position.z = Pose_cur[2,-1]
                 
-                odom.pose.pose.position = vicon_pose.transform.translation
-                odom.pose.pose.orientation = vicon_pose.transform.rotation
+                rot = R.from_matrix(Pose_cur[:3,:3])
+                quat = rot.as_quat()
+                odom.pose.pose.orientation.x = quat[0]
+                odom.pose.pose.orientation.y = quat[1]
+                odom.pose.pose.orientation.z = quat[2]
+                odom.pose.pose.orientation.w = quat[3]
                 
                 odom.twist.twist.linear.x = v[0]
                 odom.twist.twist.linear.y = v[1]
@@ -72,6 +86,7 @@ class PublishOdometry:
                 self.t_last_pub = t_cur
         else:
             self.t_last_pub = t_cur
+            self.T_0 = np.linalg.inv(Pose_cur)
             
         self.t_prev= t_cur
         self.pose_prev = Pose_cur
