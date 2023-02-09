@@ -51,6 +51,7 @@ class SystemID:
         self.csv_file = open(file_name, 'w')
 
         self.csv_writer = csv.writer(self.csv_file)
+        self.csv_writer.writerow(['throttle', 'steer', 'accel', 'v', 'w'])
 
         self.t_prev = None
         self.v_prev = None
@@ -78,7 +79,7 @@ class SystemID:
             
             if self.v_prev is not None:
 
-                accel = np.round((v - self.v_prev),2) / dt
+                accel = np.round((v - self.v_prev),5) / dt
 
                 # check if the data is valid
                 valid = v<=self.max_v and v>=self.min_v and abs(accel)<self.max_accel and abs(throttle)< 1 and abs(steer)<1
