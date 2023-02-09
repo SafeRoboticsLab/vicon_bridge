@@ -20,6 +20,7 @@ find_package(Boost REQUIRED COMPONENTS thread date_time)
 add_message_files(FILES
     Marker.msg
     Markers.msg
+    SystemMsg.msg
     TfDistortInfo.msg
 )
 
@@ -85,5 +86,6 @@ install(DIRECTORY launch cfg DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 catkin_install_python(PROGRAMS
   scripts/verify_slam.py
   scripts/pub_odometry.py
+  scripts/system_id.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
