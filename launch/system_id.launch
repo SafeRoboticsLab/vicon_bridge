@@ -1,8 +1,15 @@
 <launch>
+  <arg name="max_v" default="5.0"/>
+  <arg name="min_v" default="-0.1"/>
+  <arg name="max_accel" default="10.0"/>  
+
   <include file="$(find vicon_bridge)/launch/vicon.launch" />
-  <include file="$(find joy)/launch/g29.launch">
-    <arg name="dev_id" value="0" />
-    <arg name="ff_dev_id" value="25"/>
-  </include>
-  <node pkg="vicon_bridge" type="pub_odometry.py" name="pub_odometry" output="screen"/>
+  <include file="$(find joy)/launch/g29.launch" />
+    
+  <node pkg="vicon_bridge" type="system_id.py" name="system_id" output="screen" >
+    <param name="max_v" value="$(arg max_v)" />
+    <param name="min_v" value="$(arg min_v)" />
+    <param name="max_accel" value="$(arg max_v)" />
+  </node>
+  <node pkg="rqt_gui" type="rqt_gui" name="rqt" output="screen" args="--perspective-file $(find vicon_bridge)/cfg/system_id.perspective"/>
 </launch>

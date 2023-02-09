@@ -32,11 +32,15 @@ def SE3_log(T):
 class SystemID:
     def __init__(self):
         self.vicon_topic = rospy.get_param("~vicon_topic", "/vicon/NX14/NX14")
-        self.control_topic = rospy.get_param("~control_topic", "/rc_control_node/g29_control")
+        self.control_topic = rospy.get_param("~control_topic", "/servo/g29_control")
         self.pub_topic = rospy.get_param("~pub_topic", "/vicon/system_id")
         
-        vicon_sub = rospy.Subscriber(self.vicon_topic, TransformStamped)
-        control_sub = rospy.Subscriber(self.control_topic, ServoMsg)
+        self.max_v = rospy.get_param("~max_v", 5.0)
+        self.min_v = rospy.get_param("~min_v", -0.1)
+        self.max_accel = rospy.get_param("~max_accel", 10.0)
+        
+        vicon_sub = message_filters.Subscriber(self.vicon_topic, TransformStamped)
+        control_sub = message_filters.Subscriber(self.control_topic, ServoMsg)
         self.publisher = rospy.Publisher(self.pub_topic, SystemMsg, queue_size=10)
         
         ts = message_filters.ApproximateTimeSynchronizer([vicon_sub, control_sub], 10, 0.1, allow_headerless=True)
@@ -44,7 +48,8 @@ class SystemID:
         
         file_name = os.path.join(os.path.dirname(__file__), 'system_id'+datetime.now().strftime("%Y%m%d-%H%M%S")+'.csv')
         rospy.loginfo("Saving data to %s", file_name)
-        self.csv_file = open('system_id.csv', 'w')
+        self.csv_file = open(file_name, 'w')
+
         self.csv_writer = csv.writer(self.csv_file)
 
         self.t_prev = None
@@ -68,14 +73,16 @@ class SystemID:
             dPose = np.dot(np.linalg.inv(self.pose_prev), Pose_cur)
             dw, dv = SE3_log(dPose)
             
-            w = dw / dt
-            v = dv / dt
+            w = dw[-1] / dt
+            v = dv[0] / dt
             
             if self.v_prev is not None:
 
-                accel = (v - self.v_prev) / dt
+                accel = np.round((v - self.v_prev),2) / dt
+
                 # check if the data is valid
-                valid = v<5 and v>=0 and abs(accel)<10 and abs(throttle)< 1 and abs(steer)<1
+                valid = v<=self.max_v and v>=self.min_v and abs(accel)<self.max_accel and abs(throttle)< 1 and abs(steer)<1
+                
                 if valid:
                     msg = SystemMsg()
                     msg.header.stamp = rospy.Time.now()
@@ -91,6 +98,12 @@ class SystemID:
             self.v_prev = v
         self.t_prev= t_cur
         self.pose_prev = Pose_cur
+        
+    def run(self):
+        while not rospy.is_shutdown():
+            rospy.sleep(0.01)
+        self.csv_file.close()
+        print("Closed csv")
             
         
 def main():
@@ -98,8 +111,9 @@ def main():
     rospy.loginfo("Start SystemID node")
 
 
-    SystemID()
-    rospy.spin()
+    systemid = SystemID()
+    systemid.run()
+    
 
 
 if __name__ == '__main__':
